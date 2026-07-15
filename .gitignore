@@ -1,0 +1,8 @@
+backend/.env
+vite-project/.env
+backend/node_modules
+vite-project/node_modules
+backend/.env.local
+vite-project/.env.local
+backend/dist
+vite-project/dist
