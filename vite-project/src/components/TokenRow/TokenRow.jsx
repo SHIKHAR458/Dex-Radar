@@ -9,12 +9,12 @@ function TokenRow({ token, timeframe }) {
     : "bg-rose-500/15 text-rose-300 ring-1 ring-inset ring-rose-500/30";
 
   return (
-    <tr className="bg-slate-900/80 hover:bg-slate-800/90 text-slate-100 transition-colors">
-      <td className="px-4 py-3 font-medium text-slate-50 rounded-l-3xl">
-        <div className="flex flex-col">
-          <span>{token.name}</span>
-          <span className="text-xs font-normal uppercase tracking-[0.16em] text-slate-400">
-            {token.symbol || "UNKNOWN"} {token.chain ? `• ${token.chain}` : ""}
+    <tr className="bg-slate-900/80 text-slate-100 transition-colors hover:bg-slate-800/90">
+      <td className="rounded-l-lg px-4 py-3 font-medium text-slate-50">
+        <div className="flex min-w-0 flex-col">
+          <span className="max-w-52 truncate">{token.name}</span>
+          <span className="max-w-52 truncate text-xs font-normal uppercase tracking-[0.16em] text-slate-400">
+            {token.symbol || "UNKNOWN"} {token.chain ? `- ${token.chain}` : ""}
           </span>
         </div>
       </td>
@@ -30,7 +30,7 @@ function TokenRow({ token, timeframe }) {
       </td>
       <td className="px-4 py-3">{formatVolume(volumeValue)}</td>
       <td className="px-4 py-3">{formatLiquidity(token.liquidity)}</td>
-      <td className="px-4 py-3 rounded-r-3xl">{formatCompactNumber(token.marketCap)}</td>
+      <td className="rounded-r-lg px-4 py-3">{formatCompactNumber(token.marketCap)}</td>
     </tr>
   );
 }

@@ -27,10 +27,10 @@ function Navbar({
 
   return (
     <nav className="border-b border-emerald-500/10 bg-slate-950/90 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.3em] text-emerald-400">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-emerald-400 sm:tracking-[0.3em]">
               Live Market Watch
             </p>
             <h1 className="mt-1 text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl">
@@ -39,7 +39,7 @@ function Navbar({
           </div>
 
           <div
-            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${
+            className={`flex w-fit max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-sm ${
               isConnected
                 ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
                 : "border border-rose-500/20 bg-rose-500/10 text-rose-300"
@@ -54,7 +54,7 @@ function Navbar({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-300">
+        <div className="grid gap-2 text-sm text-slate-300 sm:flex sm:flex-wrap sm:items-center sm:gap-4">
           <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5">
             Last Updated: {formattedLastUpdated}
           </span>

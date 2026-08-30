@@ -3,9 +3,14 @@ import normalizeToken from "../services/normalizeToken.js";
 import redisClient from "../config/redis.js";
 
 const REDIS_KEY = "tokens";
-const PREVIOUS_KEY = "tokens:previous";
 const PRICE_THRESHOLD = 1;
 const VOLUME_THRESHOLD = 20;
+const ACTIVE_POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_MS) || 15000;
+const IDLE_POLL_INTERVAL_MS = Number(process.env.IDLE_POLL_INTERVAL_MS) || 300000;
+const MAX_CACHE_AGE_MS = Number(process.env.MAX_CACHE_AGE_MS) || 60000;
+
+let previousTokens = [];
+let lastRedisWriteAt = 0;
 
 const getPercentChange = (previousValue, nextValue) => {
   const prev = Number(previousValue) || 0;
@@ -36,16 +41,21 @@ export const startPolling = (io) => {
     try {
       const rawData = await getDexTokens();
       const tokens = normalizeToken(rawData);
-      const previousRaw = await redisClient.get(PREVIOUS_KEY);
-      const previousTokens = previousRaw ? JSON.parse(previousRaw) : [];
       const previousMap = new Map(previousTokens.map((token) => [token.id, token]));
 
       const changedTokens = tokens.filter((token) =>
         hasMeaningfulChange(previousMap.get(token.id), token)
       );
 
-      await redisClient.set(REDIS_KEY, JSON.stringify(tokens));
-      await redisClient.set(PREVIOUS_KEY, JSON.stringify(tokens));
+      const shouldRefreshCache =
+        changedTokens.length > 0 || Date.now() - lastRedisWriteAt >= MAX_CACHE_AGE_MS;
+
+      if (shouldRefreshCache) {
+        await redisClient.set(REDIS_KEY, JSON.stringify(tokens));
+        lastRedisWriteAt = Date.now();
+      }
+
+      previousTokens = tokens;
 
       if (io && changedTokens.length > 0) {
         io.emit("tokens:update", {
@@ -54,13 +64,18 @@ export const startPolling = (io) => {
         });
       }
 
-      console.log(`Redis updated. Changed tokens: ${changedTokens.length}`);
+      console.log(
+        `Poll complete. Changed tokens: ${changedTokens.length}. Redis write: ${shouldRefreshCache}`
+      );
     } catch (err) {
       console.error(err);
+    } finally {
+      const hasClients = (io?.engine?.clientsCount ?? 0) > 0;
+      const nextInterval = hasClients ? ACTIVE_POLL_INTERVAL_MS : IDLE_POLL_INTERVAL_MS;
+
+      setTimeout(poll, nextInterval);
     }
   };
 
   poll();
-
-  setInterval(poll, 4000);
 };
